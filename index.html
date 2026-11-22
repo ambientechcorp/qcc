@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="strict-origin">
+<meta name="theme-color" content="#f5f5f7">
+<title>QCC Story Workbench</title>
+<style>
+:root{--bg:#f5f5f7;--card:rgba(255,255,255,.86);--ink:#1d1d1f;--ink2:#6e6e73;--blue:#0a84ff;--line:rgba(0,0,0,.08)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(1200px 600px at 10% -10%,#dbeafe 0,transparent 60%),radial-gradient(900px 500px at 110% 10%,#ede9fe 0,transparent 55%),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Tahoma,sans-serif}
+.wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{width:100%;max-width:420px;background:var(--card);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);border:1px solid var(--line);border-radius:28px;padding:34px 28px 28px;text-align:center;box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 30px 80px rgba(10,30,80,.14)}
+.logo{width:68px;height:68px;margin:0 auto 14px;border-radius:20px;background:linear-gradient(135deg,#0a84ff,#5e5ce6 55%,#bf5af2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px;letter-spacing:.5px;box-shadow:0 12px 30px rgba(94,92,230,.35)}
+h1{font-size:24px;margin:0 0 6px;letter-spacing:-.3px}
+p{margin:0 0 10px;color:var(--ink2);font-size:15px;line-height:1.55}
+.btnbox{display:flex;justify-content:center;min-height:44px;margin:18px 0 8px}
+.msg{min-height:22px;font-size:14px;margin-top:10px}
+.msg.err{color:#ff3b30}
+.spin{width:28px;height:28px;border:3px solid rgba(10,132,255,.18);border-top-color:var(--blue);border-radius:50%;margin:16px auto 4px;animation:sp 0.9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.small{font-size:12.5px;color:#8e8e93;margin-top:14px}
+#pfOv{position:fixed;inset:0;z-index:2147483646;display:none;align-items:center;justify-content:center;background:rgba(245,245,247,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:20px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif}
+#pfOv.on{display:flex}
+#pfOv .card{max-width:400px}
+#pfOv button.pri{appearance:none;border:0;border-radius:14px;padding:12px 18px;font:600 15px/1 -apple-system,"Segoe UI",Tahoma,sans-serif;color:#fff;background:linear-gradient(180deg,#0a84ff,#0060df);cursor:pointer;box-shadow:0 8px 20px rgba(10,132,255,.3);width:100%;margin-top:6px}
+#pfOv button.sec{appearance:none;border:0;background:none;color:var(--blue);font:500 14px -apple-system,"Segoe UI",Tahoma,sans-serif;margin-top:12px;cursor:pointer}
+#pfAcct{position:fixed;right:14px;bottom:14px;z-index:2147483645;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font:500 13px -apple-system,"Segoe UI",Tahoma,sans-serif;color:#1d1d1f;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+#pfAcct a{color:var(--blue);text-decoration:none;margin-left:8px;cursor:pointer}
+.otp{margin-top:6px}
+.lnk{appearance:none;border:0;background:none;color:var(--blue);font:500 14px -apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;cursor:pointer;padding:6px}
+.sep{display:flex;align-items:center;gap:10px;color:#8e8e93;font-size:13px;margin:10px 0}.sep:before,.sep:after{content:"";flex:1;height:1px;background:var(--line)}
+.in{width:100%;font:16px -apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;padding:12px 14px;border:1px solid #d1d1d6;border-radius:14px;background:#fff;margin:4px 0 8px;outline:none}
+.in:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(10,132,255,.15)}.in.code{text-align:center;letter-spacing:8px;font-size:22px;font-weight:700}
+.pri{appearance:none;border:0;border-radius:14px;padding:12px 18px;width:100%;font:600 15px -apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;color:#fff;background:linear-gradient(180deg,#0a84ff,#0060df);cursor:pointer;box-shadow:0 8px 20px rgba(10,132,255,.25)}
+.pri:disabled{opacity:.55;cursor:default}.hint{font-size:14px;margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="pfLogin">
+  <div class="card">
+    <div class="logo">QC</div>
+    <h1>QCC Story Workbench</h1>
+    <p id="pfSub">เข้าสู่ระบบด้วยบัญชี Google หรืออีเมลที่ได้รับสิทธิ์ใช้งาน</p>
+    <div class="btnbox" id="pfBtn"><div class="spin"></div></div>
+    <div class="msg" id="pfMsg"></div>
+    <div class="otp" id="qOtp">
+      <button class="lnk" type="button" id="qOtpOpen">✉️ ไม่มีบัญชี Google? เข้าด้วยอีเมล + รหัส OTP</button>
+      <div class="otpbox" id="qOtpBox" hidden>
+        <div class="sep"><span>เข้าด้วยอีเมล</span></div>
+        <div id="qOtpS1"><input class="in" id="qOtpEmail" type="email" autocomplete="email" maxlength="120" placeholder="อีเมลของคุณ"><button class="pri" type="button" id="qOtpSend">ส่งรหัสไปที่อีเมล</button></div>
+        <div id="qOtpS2" hidden><p class="hint" id="qOtpHint"></p><input class="in code" id="qOtpCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="รหัส 6 หลัก"><button class="pri" type="button" id="qOtpGo">ยืนยันรหัส</button><button class="lnk" type="button" id="qOtpBack">เปลี่ยนอีเมล / ส่งรหัสใหม่</button></div>
+        <div class="msg" id="qOtpMsg"></div>
+      </div>
+    </div>
+    <div class="small">ระบบใช้บัญชีเพื่อยืนยันตัวตนเท่านั้น · ไฟล์ที่บันทึกอยู่ใน Google Drive หรือเครื่องของคุณเอง</div>
+  </div>
+</div>
+<script>
+/* =====================================================================================
+ * QCC Story Workbench · หน้าเข้าสู่ระบบ (Google / OTP) + ตัวเชื่อมต่อ (GitHub Pages) — SPLIT
+ * - ไม่มีโค้ดโปรแกรมในไฟล์นี้ · หน้าโปรแกรมได้จาก API หลังตรวจสิทธิ์
+ * - google.script.run ในหน้าโปรแกรม → ส่งผ่าน API (Cloudflare Worker)
+ * - บันทึก/เปิดไฟล์ Google Drive ทำในเบราว์เซอร์ด้วยสิทธิ์ drive.file ของผู้ใช้เอง
+ * แก้ 2 ค่าด้านล่างให้ตรงกับระบบของคุณ
+ * ===================================================================================== */
+var QCC_CONFIG = {
+  API_URL: 'https://qcc-api.mr-mikamoler.workers.dev',
+  GOOGLE_CLIENT_ID: '785878665160-ivbdm1dhisdhe1m8vnfflnlqfrnug69e.apps.googleusercontent.com'
+};
+(function () {
+  'use strict';
+  var API = String(QCC_CONFIG.API_URL).replace(/\/+$/, ''), CID = QCC_CONFIG.GOOGLE_CLIENT_ID;
+  var DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+  var TK = 'qcc.session', SES = null, TICKET = '', BOOT = null, PAGE = '', EMAIL = '', gisReady = false, wantLogin = false, reauthQ = [];
+  var params = new URLSearchParams(location.search);
+  if (params.get('logout') === '1') { try { sessionStorage.removeItem(TK); } catch (e) { } }
+
+  function $(id) { return document.getElementById(id); }
+  function msg(t, bad) { var m = $('pfMsg'); if (m) { m.textContent = t || ''; m.className = 'msg' + (bad ? ' err' : ''); } }
+  function tok() { try { var o = JSON.parse(sessionStorage.getItem(TK) || 'null'); return o && o.x > Date.now() + 60000 ? o : null; } catch (e) { return null; } }
+  /* ชุดโค้ดส่งมาแบบบีบอัด gzip — ปกติเบราว์เซอร์แตกให้เอง · ถ้าได้ไฟล์ที่ยังไม่แตก (เช่นผ่าน proxy บางแบบ) ให้แตกเอง */
+  function bodyText(r) {
+    return r.arrayBuffer().then(function (buf) {
+      var a = new Uint8Array(buf);
+      if (a.length > 2 && a[0] === 0x1f && a[1] === 0x8b && typeof DecompressionStream === 'function')
+        return new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+      return new TextDecoder('utf-8').decode(a);
+    });
+  }
+  function post(path, body, auth) {
+    var h = { 'Content-Type': 'application/json' }, t = tok();
+    if (auth && t) h.Authorization = 'Bearer ' + t.t;
+    return fetch(API + path, { method: 'POST', headers: h, body: JSON.stringify(body || {}), credentials: 'omit', cache: 'no-store' }).then(function (r) {
+      return bodyText(r).then(function (txt) {
+        var j = null; try { j = JSON.parse(txt); } catch (e) { j = null; }
+        if (r.status === 401) { var e1 = new Error((j && j.e) || 'กรุณาเข้าสู่ระบบ'); e1.auth = true; throw e1; }
+        if (!j) throw new Error('เชื่อมต่อระบบไม่สำเร็จ (' + r.status + ')');
+        if (!j.ok) throw new Error(j.e || 'เกิดข้อผิดพลาด');
+        return j;
+      });
+    });
+  }
+
+  /* ---------------- เข้าสู่ระบบ (Google Identity Services) ---------------- */
+  function saveSess(j) {
+    EMAIL = j.email;
+    try { sessionStorage.setItem(TK, JSON.stringify({ t: j.token, x: Date.now() + j.hours * 3600000 - 120000, e: j.email, v: j.via || 'google' })); } catch (e) { }
+  }
+  function onCred(resp) {
+    msg('กำลังตรวจสอบสิทธิ์…');
+    post('/api/login', { credential: resp && resp.credential }).then(function (j) {
+      saveSess(j);
+      var ov = $('pfOv'); if (ov) ov.className = '';
+      if (BOOT) { var q = reauthQ; reauthQ = []; q.forEach(function (f) { f(); }); return; }
+      boot();
+    }, function (e) { msg(e.message, true); var ov = $('pfOvMsg'); if (ov) ov.textContent = e.message; });
+  }
+  function gisInit() {
+    google.accounts.id.initialize({ client_id: CID, callback: onCred, auto_select: true, cancel_on_tap_outside: false, ux_mode: 'popup', itp_support: true });
+  }
+  function renderBtn(el) {
+    el.innerHTML = '';
+    google.accounts.id.renderButton(el, { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', logo_alignment: 'left', locale: 'th', width: 280 });
+  }
+  function showLogin() {
+    wantLogin = true;
+    if (!gisReady) return;
+    gisInit(); renderBtn($('pfBtn'));
+    try { google.accounts.id.prompt(); } catch (e) { }
+  }
+  window.__pfGisReady = function () { gisReady = true; if (wantLogin) showLogin(); };
+
+  /* ---------------- เปิดหน้าโปรแกรม ---------------- */
+  function boot() {
+    msg('กำลังโหลดโปรแกรม…');
+    post('/api/boot', {}, true).then(function (j) {
+      BOOT = j.session; PAGE = j.page; EMAIL = (tok() || {}).e || EMAIL;
+      var html = j.html, waited = 0;
+      j.html = null;
+      (function go() {   /* รอไลบรารีล็อกอินของ Google โหลดเสร็จก่อน (ใช้ต่อในหน้าโปรแกรม: เข้าสู่ระบบใหม่ / Google Drive) */
+        if (!gisReady && waited < 8000) { waited += 100; setTimeout(go, 100); return; }
+        installShim(); window.__QCC_SPLIT__ = 1; window.__qccSignOut = signOut;
+        document.open(); document.write(html); document.close();
+        html = null;
+        setTimeout(afterWrite, 0);
+      })();
+    }, function (e) {
+      if (e.auth) { try { sessionStorage.removeItem(TK); } catch (x) { } showLogin(); msg(e.message, true); return; }
+      msg(e.message, true); showLogin();
+    });
+  }
+  function afterWrite() {
+    ensureOverlay();
+    if (false) {   /* หน้าแจ้งสถานะของ QCC อยู่ในโปรแกรมเอง (มีปุ่มเปลี่ยนบัญชี) */
+      var a = document.createElement('div'); a.id = 'pfAcct';
+      /* ใส่สไตล์แบบ inline เพราะหน้านี้เขียนทับ CSS ของ index.html ไปแล้ว */
+      a.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:2147483645;display:inline-flex;align-items:center;max-width:calc(100vw - 28px);background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid #e5e5ea;border-radius:999px;padding:8px 14px;font:500 13px -apple-system,"Segoe UI","Noto Sans Thai",Tahoma,sans-serif;color:#1d1d1f;box-shadow:0 8px 24px rgba(0,0,0,.12)';
+      a.innerHTML = '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>'
+        + '<a style="color:#007aff;text-decoration:none;margin-left:10px;cursor:pointer;white-space:nowrap;flex:0 0 auto">เปลี่ยนบัญชี</a>';
+      a.querySelector('span').textContent = EMAIL;
+      a.querySelector('a').onclick = signOut;
+      document.body.appendChild(a);
+    }
+  }
+  function signOut() {
+    try { sessionStorage.removeItem(TK); } catch (e) { }
+    try { google.accounts.id.disableAutoSelect(); } catch (e2) { }
+    location.href = location.pathname + '?logout=1';
+  }
+  window.__qccSignOut = signOut;
+
+  /* overlay (ใช้ซ้ำหลัง document.write) สำหรับ: เข้าสู่ระบบใหม่ · อนุญาต Google Drive */
+  var OV_CSS = '#pfOv{position:fixed;inset:0;z-index:2147483646;display:none;align-items:center;justify-content:center;background:rgba(245,245,247,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:20px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,sans-serif}' +
+    '#pfOv.on{display:flex}#pfOv .vc{width:100%;max-width:400px;background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.08);border-radius:26px;padding:28px 24px;text-align:center;box-shadow:0 30px 80px rgba(10,30,80,.18);color:#1d1d1f}' +
+    '#pfOv h3{margin:0 0 6px;font-size:19px}#pfOv p{margin:0 0 12px;color:#6e6e73;font-size:14.5px;line-height:1.55}#pfOv .bb{display:flex;justify-content:center;min-height:44px;margin:10px 0}' +
+    '#pfOv button.pri{appearance:none;border:0;border-radius:14px;padding:12px 18px;font:600 15px/1 -apple-system,"Segoe UI",Tahoma,sans-serif;color:#fff;background:linear-gradient(180deg,#0a84ff,#0060df);cursor:pointer;width:100%}' +
+    '#pfOv button.sec{appearance:none;border:0;background:none;color:#0a84ff;font:500 14px -apple-system,"Segoe UI",Tahoma,sans-serif;margin-top:10px;cursor:pointer}#pfOv .m{font-size:13px;color:#ff3b30;min-height:18px}';
+  function ensureOverlay() {
+    if ($('pfOv')) return $('pfOv');
+    if (!$('pfOvCss')) { var st = document.createElement('style'); st.id = 'pfOvCss'; st.textContent = OV_CSS; (document.head || document.documentElement).appendChild(st); }
+    var d = document.createElement('div'); d.id = 'pfOv'; d.innerHTML = '<div class="vc"></div>';
+    (document.body || document.documentElement).appendChild(d);
+    return d;
+  }
+  function overlay(html) { var d = ensureOverlay(); d.querySelector('.vc').innerHTML = html; d.className = 'on'; return d; }
+  function closeOverlay() { var d = $('pfOv'); if (d) d.className = ''; }
+  function reauth() {
+    var o = null; try { o = JSON.parse(sessionStorage.getItem(TK) || 'null'); } catch (e) { }
+    if (o && o.v === 'otp') {   /* เข้าด้วย OTP: ต้องขอรหัสใหม่ที่หน้าเข้าสู่ระบบ */
+      var d0 = overlay('<h3>เซสชันหมดอายุ</h3><p>เข้าสู่ระบบด้วยอีเมล + รหัส OTP อีกครั้ง (บันทึกงานลงเครื่องก่อน ถ้ายังไม่ได้บันทึก)</p><button class="pri" type="button" id="qReLogin">ไปหน้าเข้าสู่ระบบ</button>');
+      d0.querySelector('#qReLogin').onclick = signOut;
+      return new Promise(function () { });
+    }
+    return new Promise(function (ok) {
+      reauthQ.push(ok);
+      if (reauthQ.length > 1) return;
+      var d = overlay('<h3>เข้าสู่ระบบอีกครั้ง</h3><p>เซสชันหมดอายุ — เข้าสู่ระบบเพื่อทำงานต่อ (งานที่ทำค้างอยู่ไม่หาย)</p><div class="bb" id="pfOvBtn"></div><div class="m" id="pfOvMsg"></div>');
+      try { gisInit(); renderBtn(d.querySelector('#pfOvBtn')); google.accounts.id.prompt(); } catch (e) { }
+    });
+  }
+
+  /* ---------------- google.script.run (ส่งผ่าน API) ---------------- */
+  function apiCall(fn, args) {
+    var body = { fn: fn, args: args };
+    if (fn === 'apiApp' || fn === 'apiAsset') body.t = TICKET;   /* ตั๋วสิทธิ์จาก apiSession → โหลดจาก Cloudflare ได้ทันที */
+    return post('/api/call', body, true).then(function (j) {
+      if (j.t) TICKET = j.t;
+      if ((fn === 'apiSession' || fn === 'apiGuestSession') && j.v) SES = j.v;
+      return j.v;
+    }, function (e) {
+      if (e.auth) return reauth().then(function () { return apiCall(fn, args); });
+      throw e;
+    });
+  }
+  function invoke(fn, args, st) {
+    if (fn === 'apiCall') { fn = String(args[0] || ''); args = Array.isArray(args[1]) ? args[1] : []; }   /* Platform เรียกผ่าน apiCall(fn, args, token) */
+    var p = Object.prototype.hasOwnProperty.call(DRIVE, fn) ? DRIVE[fn].apply(null, args) : apiCall(fn, args);
+    p.then(function (v) { if (st.ok) st.ok(v, st.uo); }, function (e) {
+      var er = e instanceof Error ? e : new Error(String(e));
+      if (st.ng) st.ng(er, st.uo); else try { console.error(er); } catch (x) { }
+    });
+  }
+  function runner(st) {
+    return new Proxy({}, { get: function (t, k) {
+      if (k === 'withSuccessHandler') return function (f) { return runner({ ok: f, ng: st.ng, uo: st.uo }); };
+      if (k === 'withFailureHandler') return function (f) { return runner({ ok: st.ok, ng: f, uo: st.uo }); };
+      if (k === 'withUserObject') return function (o) { return runner({ ok: st.ok, ng: st.ng, uo: o }); };
+      if (typeof k !== 'string' || k === 'then' || k === 'toJSON') return undefined;
+      return function () { invoke(k, Array.prototype.slice.call(arguments), st); };
+    } });
+  }
+  function installShim() {
+    var g = window.google || (window.google = {});
+    var run = runner({});
+    try { Object.defineProperty(g, 'script', { configurable: true, value: { run: run, host: { close: function () { }, setHeight: function () { }, setWidth: function () { }, editor: {} } } }); }
+    catch (e) { g.script = { run: run }; }
+  }
+
+  /* ---------------- Google Drive (สิทธิ์ drive.file — เห็นเฉพาะไฟล์ที่ QCC สร้าง) ----------------
+     แทน apiDriveSave / apiDriveRoot ของระบบเดิม (ตรวจสิทธิ์ชุดเดียวกัน) */
+  var DTOK = null, tokenClient = null, DAPI = 'https://www.googleapis.com/drive/v3/files', UAPI = 'https://www.googleapis.com/upload/drive/v3/files', FOLD = {};
+  function driveToken() {
+    if (DTOK && DTOK.x > Date.now() + 60000) return Promise.resolve(DTOK.t);
+    return new Promise(function (ok, ng) {
+      var first = !DTOK;
+      var d = overlay('<h3>บันทึกไฟล์ลง Google Drive</h3><p>' + (first ? 'อนุญาตให้ QCC Story Workbench ใช้ Google Drive ของคุณ — เข้าถึงได้เฉพาะไฟล์ที่โปรแกรมสร้างเท่านั้น' : 'การเชื่อมต่อ Google Drive หมดอายุ — กดเพื่อเชื่อมต่ออีกครั้ง') +
+        '</p><button class="pri" type="button" id="pfDrvGo">เชื่อมต่อ Google Drive</button><br><button class="sec" type="button" id="pfDrvNo">ยกเลิก</button><div class="m" id="pfDrvMsg"></div>');
+      d.querySelector('#pfDrvNo').onclick = function () { closeOverlay(); ng(new Error('ยกเลิกการเชื่อมต่อ Google Drive')); };
+      d.querySelector('#pfDrvGo').onclick = function () {
+        try {
+          tokenClient = google.accounts.oauth2.initTokenClient({ client_id: CID, scope: DRIVE_SCOPE, hint: EMAIL || undefined,
+            callback: function (r) {
+              if (!r || r.error || !r.access_token) { d.querySelector('#pfDrvMsg').textContent = 'ไม่ได้รับอนุญาต: ' + ((r && r.error) || ''); return; }
+              DTOK = { t: r.access_token, x: Date.now() + (+r.expires_in || 3600) * 1000 }; closeOverlay(); ok(DTOK.t);
+            },
+            error_callback: function (e) { d.querySelector('#pfDrvMsg').textContent = 'เชื่อมต่อไม่สำเร็จ (' + ((e && e.type) || '') + ') — ลองอีกครั้ง'; } });
+          tokenClient.requestAccessToken({ prompt: first ? 'consent' : '' });
+        } catch (e) { d.querySelector('#pfDrvMsg').textContent = 'เชื่อมต่อไม่สำเร็จ: ' + e.message; }
+      };
+    });
+  }
+  function dfetch(url, opt) {
+    return driveToken().then(function (t) {
+      opt = opt || {}; opt.headers = opt.headers || {}; opt.headers.Authorization = 'Bearer ' + t;
+      return fetch(url, opt).then(function (r) {
+        if (r.status === 401) { DTOK = null; throw new Error('การเชื่อมต่อ Google Drive หมดอายุ — ลองอีกครั้ง'); }
+        if (!r.ok) return r.text().then(function (t2) { throw new Error('Google Drive: ' + r.status + ' ' + String(t2).slice(0, 160)); });
+        return r;
+      });
+    });
+  }
+  function qs(o) { return Object.keys(o).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(o[k]); }).join('&'); }
+  function qesc(s) { return String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+  function cleanName(s, def) { s = String(s || '').replace(/[\\\/:*?"<>|\u0000-\u001f]+/g, '_').trim().slice(0, 150); return s || def; }
+  function folder(name, parent) {
+    var key = parent + '/' + name;
+    if (FOLD[key]) return FOLD[key];
+    return (FOLD[key] = dfetch(DAPI + '?' + qs({ q: "name='" + qesc(name) + "' and mimeType='application/vnd.google-apps.folder' and '" + parent + "' in parents and trashed=false", fields: 'files(id,name,webViewLink)', spaces: 'drive' }))
+      .then(function (r) { return r.json(); }).then(function (j) {
+        if ((j.files || []).length) return j.files[0];
+        return dfetch(DAPI + '?fields=id,name,webViewLink', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, mimeType: 'application/vnd.google-apps.folder', parents: [parent] }) }).then(function (r) { return r.json(); });
+      }).catch(function (e) { delete FOLD[key]; throw e; }));
+  }
+  function furl(f) { return f.webViewLink || ('https://drive.google.com/drive/folders/' + f.id); }
+  function bkkToday() { var d = new Date(Date.now() + 7 * 3600000); return d.getUTCFullYear() + '-' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + d.getUTCDate()).slice(-2); }
+  function b64bytes(b) { var s = atob(String(b || '')), a = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+  function permOf(s, k) { var p = s.perms || {}, v = p[k]; if (v === undefined) v = p['g.project']; return v || 0; }
+  function grpOff(s, menu, g) { var b = s && s.btn; return !!(b && ((b.tool && b.tool[menu]) || (b.grp && b.grp[menu] && b.grp[menu][g]))); }
+  function needDrive(menu, save) {
+    var s = SES || {};
+    if (!s.ok) throw new Error('LICENSE_' + String(s.status || 'need_login').toUpperCase());
+    if (save && permOf(s, menu) < 3) throw new Error('NO_SAVE_PERMISSION');
+    if (s.via === 'otp') throw new Error('OTP_NO_DRIVE');
+    if (save && !(s.feat || {}).drive) throw new Error('NO_DRIVE_PERMISSION');
+    if (save && grpOff(s, menu, 'export')) throw new Error('NO_EXPORT_PERMISSION');
+    return s;
+  }
+  function rootOf(name) { var s = SES || {}; name = cleanName(name, s.driveRootName || 'QCC Story Workbench'); return folder(name, 'root').then(function (f) { return { f: f, name: name }; }); }
+  function wrap(f) { return function () { var a = arguments; return new Promise(function (ok) { ok(); }).then(function () { return f.apply(null, a); }); }; }
+  var DRIVE = {
+    apiDriveSave: wrap(function (meta, b64) {
+      meta = meta || {}; needDrive(meta.menu, true);
+      var path = [], fo;
+      return rootOf(meta.rootName).then(function (r) {
+        path.push(r.name); fo = r.f;
+        if (meta.folderMode !== 'date') return fo;
+        var ds = /^\d{4}-\d{2}-\d{2}$/.test(meta.dateStr || '') ? meta.dateStr : bkkToday(); path.push(ds);
+        return folder(ds, fo.id);
+      }).then(function (f) {
+        fo = f;
+        if (!(meta.topicFolder && meta.topic)) return fo;
+        var tn = cleanName(meta.topic, 'อื่นๆ'); path.push(tn);
+        return folder(tn, fo.id);
+      }).then(function (f) {
+        fo = f;
+        var name = cleanName(meta.name, 'qcc-file'), mime = String(meta.mime || 'application/octet-stream');
+        var m = { name: name, parents: [fo.id], mimeType: mime }; if (meta.topic) m.description = 'QCC Story Workbench · ' + meta.topic;
+        var bd = 'qcc' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        var body = new Blob(['--' + bd + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(m) + '\r\n--' + bd + '\r\nContent-Type: ' + mime + '\r\n\r\n', b64bytes(b64), '\r\n--' + bd + '--']);
+        return dfetch(UAPI + '?uploadType=multipart&fields=id,name,webViewLink', { method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + bd }, body: body }).then(function (r) { return r.json(); });
+      }).then(function (u) {
+        return { fileId: u.id, url: u.webViewLink || ('https://drive.google.com/file/d/' + u.id + '/view'), folderUrl: furl(fo), path: path.join(' / ') };
+      });
+    }),
+    apiDriveRoot: wrap(function (rootName) {
+      needDrive('', false);
+      return rootOf(rootName).then(function (r) { return { id: r.f.id, name: r.name, url: furl(r.f) }; });
+    })
+  };
+
+  /* ---------------- เข้าสู่ระบบด้วยอีเมล + รหัส OTP ---------------- */
+  var OTP_EMAIL = '';
+  function omsg(t, bad) { var m = $('qOtpMsg'); if (m) { m.textContent = t || ''; m.className = 'msg' + (bad ? ' err' : ''); } }
+  function otpWhy(v) {
+    var r = v && v.reason;
+    return r === 'wait' ? 'เพิ่งส่งรหัสไป — รอ 1 นาทีแล้วขอใหม่' : r === 'too_many' ? 'ขอรหัสหรือกรอกผิดหลายครั้งเกินไป — ลองใหม่ภายหลัง' :
+      r === 'daily_limit' ? 'วันนี้ส่งรหัสครบจำนวนที่กำหนดแล้ว — ลองใหม่พรุ่งนี้ หรือเข้าด้วยบัญชี Google' :
+      r === 'google_only' ? 'บัญชีนี้ผู้ดูแลกำหนดให้เข้าด้วยบัญชี Google — กดปุ่ม Google ด้านบน' :
+      r === 'not_registered' ? 'อีเมลนี้ยังไม่ได้รับสิทธิ์ใช้งาน — ติดต่อผู้ดูแลระบบ' :
+      r === 'expired' ? 'รหัสหมดอายุ — ขอรหัสใหม่' : r === 'wrong' ? 'รหัสไม่ถูกต้อง' + (v.left != null ? ' (เหลือ ' + v.left + ' ครั้ง)' : '') : 'ทำรายการไม่สำเร็จ';
+  }
+  function otpErr(e) {
+    var m = String(e && e.message || e);
+    return /OTP_DISABLED/.test(m) ? 'ผู้ดูแลปิดการเข้าด้วยรหัส OTP ไว้' : /BAD_EMAIL/.test(m) ? 'รูปแบบอีเมลไม่ถูกต้อง' : /BAD_CODE/.test(m) ? 'กรอกรหัส 6 หลัก' : m;
+  }
+  function otpInit() {
+    var open = $('qOtpOpen'); if (!open) return;
+    open.onclick = function () { $('qOtpBox').hidden = false; open.hidden = true; $('qOtpEmail').focus(); };
+    $('qOtpSend').onclick = function () {
+      var em = $('qOtpEmail').value.trim().toLowerCase(), b = this;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { omsg('รูปแบบอีเมลไม่ถูกต้อง', true); return; }
+      b.disabled = true; omsg('กำลังส่งรหัส…');
+      post('/api/otp/send', { email: em }).then(function (j) {
+        b.disabled = false;
+        if (!j.v || !j.v.ok) { omsg(otpWhy(j.v), true); return; }
+        OTP_EMAIL = em; $('qOtpS1').hidden = true; $('qOtpS2').hidden = false;
+        $('qOtpHint').textContent = 'ส่งรหัสไปที่ ' + (j.v.masked || em) + ' แล้ว · ใช้ได้ภายใน ' + (j.v.minutes || 10) + ' นาที (ดูในกล่องจดหมายขยะด้วย)';
+        omsg(''); $('qOtpCode').value = ''; $('qOtpCode').focus();
+      }, function (e) { b.disabled = false; omsg(otpErr(e), true); });
+    };
+    $('qOtpEmail').onkeydown = function (e) { if (e.key === 'Enter') $('qOtpSend').click(); };
+    var vBusy = false, vDone = '';
+    function verify() {
+      var c = $('qOtpCode').value.replace(/\D/g, ''), b = $('qOtpGo');
+      if (c.length !== 6) { omsg('กรอกรหัส 6 หลัก', true); return; }
+      if (vBusy || vDone === OTP_EMAIL + ':' + c) return;   /* กันส่งรหัสเดิมซ้ำ (พิมพ์ครบ 6 หลัก + กดปุ่ม) */
+      vBusy = true; b.disabled = true; omsg('กำลังตรวจรหัส…');
+      post('/api/otp/verify', { email: OTP_EMAIL, code: c }).then(function (j) {
+        vBusy = false; b.disabled = false;
+        if (!j.token) { omsg(otpWhy(j.v), true); return; }
+        vDone = OTP_EMAIL + ':' + c; saveSess(j); omsg(''); boot();
+      }, function (e) { vBusy = false; b.disabled = false; omsg(otpErr(e), true); });
+    }
+    $('qOtpGo').onclick = verify;
+    $('qOtpCode').oninput = function () { this.value = this.value.replace(/\D/g, '').slice(0, 6); if (this.value.length === 6) verify(); };
+    $('qOtpBack').onclick = function () { $('qOtpS2').hidden = true; $('qOtpS1').hidden = false; omsg(''); };
+  }
+  otpInit();
+
+  /* ---------------- เริ่ม ---------------- */
+  if (!/^https:\/\//.test(API) || /YOUR-/.test(API + CID)) { msg('ยังไม่ได้ตั้งค่า API_URL / GOOGLE_CLIENT_ID ในไฟล์ index.html', true); $('pfBtn').innerHTML = ''; return; }
+  if (tok()) boot(); else showLogin();
+})();
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.__pfGisReady&&window.__pfGisReady()"></script>
+</body>
+</html>
